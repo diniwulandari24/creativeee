@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jelajah Permainan Nusantara</title>
+<style>
+:root {
+  --bg: #0d1c18;
+  --panel: #172c25;
+  --gold: #e7b85b;
+  --cream: #f5efdf;
+  --green: #8dc7a0;
+  --muted: #b9c9bd;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--cream);
+  font-family: Arial, sans-serif;
+}
+button { cursor: pointer; font: inherit; }
+.wrap { max-width: 1100px; margin: auto; padding: 22px; }
+header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.brand { font-size: 20px; font-weight: bold; }
+.brand span { color: var(--gold); }
+.stats { display: flex; gap: 10px; }
+.pill {
+  background: #20392f;
+  padding: 9px 13px;
+  border-radius: 25px;
+  font-size: 13px;
+}
+.hero {
+  margin: 25px 0;
+  padding: 30px;
+  border-radius: 22px;
+  background: linear-gradient(120deg,#294b37,#172c25,#4a3b25);
+}
+.hero h1 { font-size: 40px; }
+.hero p { color: var(--muted); line-height: 1.6; }
+.btn {
+  background: var(--gold);
+  color: #18251d;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 15px;
+}
+.game {
+  background: var(--panel);
+  border: 1px solid #365044;
+  border-radius: 17px;
+  padding: 18px;
+}
+.emoji { font-size: 35px; }
+.game p { color: var(--muted); min-height: 40px; }
+.game button { width: 100%; margin-top: 10px; }
+.progress {
+  height: 7px;
+  background: #30483c;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+.progress i {
+  display: block;
+  height: 100%;
+  background: var(--green);
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  background: #06110edb;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+.modal.show { display: flex; }
+.box {
+  width: min(650px,100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: var(--panel);
+  border: 1px solid #52715f;
+  border-radius: 20px;
+  padding: 22px;
+}
+.answer {
+  width: 100%;
+  text-align: left;
+  padding: 13px;
+  margin: 5px 0;
+  border-radius: 10px;
+  background: #254136;
+  color: white;
+  border: 1px solid #52715f;
+}
+.answer.correct { background: #28553d; }
+.answer.wrong { background: #593636; }
+.feedback {
+  display: none;
+  background: #20392f;
+  padding: 13px;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+.feedback.show { display: block; }
+.input {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  background: #0e2019;
+  color: white;
+  border: 1px solid #52715f;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+.close {
+  background: #294638;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+}
+.matchrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0;
+}
+.matchrow button {
+  padding: 10px;
+  background: #254136;
+  color: white;
+  border: 1px solid #52715f;
+  border-radius: 10px;
+}
+.matchrow button.selected { border-color: var(--gold); }
+footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 30px;
+}
+@media(max-width:550px) {
+  .hero h1 { font-size: 30px; }
+  .wrap { padding: 14px; }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">JELAJAH <span>NUSANTARA</span></div>
+  <div class="stats">
+    <div class="pill">⭐ <b id="stars">0</b></div>
+    <div class="pill">🪙 <b id="coins">0</b></div>
+    <button class="pill" id="soundBtn">🔊 Suara ON</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Kenali Permainan,<br>Jelajahi Nusantara.</h1>
+  <p>
+    Pelajari permainan tradisional Indonesia melalui kuis,
+    tebak gambar, susun kata, dan tantangan interaktif.
+    Selesaikan setiap level untuk mendapatkan hadiah!
+  </p>
+  <button class="btn" onclick="document.getElementById('daftar').scrollIntoView({behavior:'smooth'})">
+    Mulai Bermain
+  </button>
+</section>
+
+<h2 id="daftar">Pilih Permainan Tradisional</h2>
+<p style="color:#b9c9bd">Selesaikan tantangan untuk mendapatkan bintang.</p>
+
+<div class="grid" id="games"></div>
+
+<footer>
+  Jelajah Permainan Nusantara<br>
+  Bermain dengan Gembira, Mengenal Budaya Nusantara!
+</footer>
+</div>
+
+<div class="modal" id="modal">
+<div class="box">
+  <div class="row">
+    <div>
+      <small id="levelLabel"></small>
+      <h2 id="gameTitle"></h2>
+    </div>
+    <button class="close" onclick="closeGame()">✕</button>
+  </div>
+
+  <div class="progress"><i id="stepbar"></i></div>
+  <small id="typeLabel"></small>
+  <h3 id="question"></h3>
+  <div id="challenge"></div>
+  <div class="feedback" id="feedback"></div>
+
+  <div class="row">
+    <small id="stepText"></small>
+    <button class="btn" id="nextBtn" disabled onclick="nextChallenge()">Lanjut →</button>
+  </div>
+</div>
+</div>
+
+<script>
+const data = [
+{
+ id:"congklak",
+ name:"Congklak",
+ emoji:"🟤",
+ desc:"Permainan papan berlubang dengan biji-bijian.",
+ levels:[
+ [
+ {type:"quiz",q:"Apa alat utama untuk bermain congklak?",a:["Papan berlubang dan biji congklak","Bola dan gawang","Tali","Kartu"],correct:0,why:"Congklak menggunakan papan berlubang dan biji."},
+ {type:"true",q:"Congklak dapat melatih kemampuan berhitung.",a:["Benar","Salah"],correct:0,why:"Pemain perlu menghitung biji."},
+ {type:"word",q:"Susun huruf: K-A-G-N-C-O-L",answer:"CONGKLAK",why:"Jawabannya adalah Congklak."}
+ ],
+ [
+ {type:"image",q:"Tebak permainan berikut!",visual:"🪵 🕳️ ⚫ ⚫",a:["Congklak","Egrang","Bekel","Engklek"],correct:0,why:"Papan berlubang merupakan ciri congklak."},
+ {type:"quiz",q:"Mengapa pemain congklak perlu menghitung biji?",a:["Menentukan langkah","Mengubah warna papan","Membuat suara","Menghentikan permainan"],correct:0,why:"Perhitungan membantu menentukan strategi."},
+ {type:"match",q:"Cocokkan permainan dengan alatnya.",pairs:[["Congklak","Papan berlubang"],["Egrang","Bambu"],["Kelereng","Bola kaca"]],why:"Setiap permainan memiliki alat khas."}
+ ],
+ [
+ {type:"quiz",q:"Sikap positif apa yang dilatih melalui congklak?",a:["Sportivitas dan strategi","Mudah menyerah","Curang","Tidak bergiliran"],correct:0,why:"Congklak melatih strategi dan kesabaran."},
+ {type:"true",q:"Menaati aturan bersama merupakan bentuk sportivitas.",a:["Benar","Salah"],correct:0,why:"Aturan membuat permainan berlangsung adil."},
+ {type:"word",q:"Lengkapi kata: K E S A _ A R A N",answer:"KESABARAN",why:"Jawabannya adalah kesabaran."}
+ ]]
+},
+{
+ id:"engklek",
+ name:"Engklek",
+ emoji:"🦶",
+ desc:"Permainan melompat pada petak-petak.",
+ levels:[
+ [
+ {type:"quiz",q:"Gerakan utama dalam engklek adalah ...",a:["Melompat dengan satu kaki","Berlari membawa tongkat","Memukul bola","Menarik tambang"],correct:0,why:"Pemain melompat dari satu petak ke petak lain."},
+ {type:"true",q:"Engklek biasanya menggunakan petak yang digambar di tanah.",a:["Benar","Salah"],correct:0,why:"Petak menjadi jalur lompatan."},
+ {type:"word",q:"Susun huruf: E-N-G-K-L-E-K",answer:"ENGKLEK",why:"Jawabannya adalah Engklek."}
+ ],
+ [
+ {type:"image",q:"Permainan apa yang cocok dengan gambar ini?",visual:"▢\n▢ ▢\n  ▢\n▢ ▢",a:["Engklek","Gobak Sodor","Bekel","Kelereng"],correct:0,why:"Petak-petak merupakan ciri engklek."},
+ {type:"quiz",q:"Apa yang perlu dijaga pemain saat melompat?",a:["Keseimbangan tubuh","Kecepatan mengetik","Kekuatan suara","Jumlah kartu"],correct:0,why:"Keseimbangan membantu pemain melompat."},
+ {type:"match",q:"Pasangkan permainan dengan gerakannya.",pairs:[["Engklek","Melompat"],["Egrang","Berjalan di tongkat"],["Kelereng","Menyentil"]],why:"Setiap permainan memiliki gerakan khas."}
+ ],
+ [
+ {type:"quiz",q:"Keterampilan yang dilatih dalam engklek adalah ...",a:["Keseimbangan dan koordinasi","Menghafal nada","Memasak","Mengetik"],correct:0,why:"Engklek melatih keseimbangan tubuh."},
+ {type:"true",q:"Bentuk petak engklek selalu sama di seluruh Indonesia.",a:["Benar","Salah"],correct:1,why:"Bentuk petak dapat berbeda di setiap daerah."},
+ {type:"word",q:"Susun huruf: K-O-O-R-D-I-N-A-S-I",answer:"KOORDINASI",why:"Jawabannya adalah koordinasi."}
+ ]]
+},
+{
+ id:"gobak",
+ name:"Gobak Sodor",
+ emoji:"🏃",
+ desc:"Permainan kelompok melewati penjagaan lawan.",
+ levels:[
+ [
+ {type:"quiz",q:"Gobak Sodor umumnya dimainkan secara ...",a:["Berkelompok","Sendirian","Tanpa pemain","Dengan kartu"],correct:0,why:"Permainan ini membutuhkan dua kelompok."},
+ {type:"true",q:"Kerja sama tim penting dalam gobak sodor.",a:["Benar","Salah"],correct:0,why:"Pemain harus bekerja sama."},
+ {type:"word",q:"Susun huruf: G-O-B-A-K-S-O-D-O-R",answer:"GOBAKSODOR",why:"Jawabannya adalah Gobak Sodor."}
+ ],
+ [
+ {type:"image",q:"Tebak permainan berikut!",visual:"🏃 ║ 🏃\n───┼───",a:["Gobak Sodor","Congklak","Bekel","Egrang"],correct:0,why:"Garis penjagaan merupakan ciri gobak sodor."},
+ {type:"quiz",q:"Apa tugas kelompok penjaga?",a:["Menghalangi lawan melewati garis","Mengumpulkan biji","Menyembunyikan papan","Melempar kelereng"],correct:0,why:"Penjaga bertugas menjaga garis."},
+ {type:"match",q:"Pasangkan peran dengan tugasnya.",pairs:[["Penjaga","Menjaga garis"],["Penyerang","Melewati garis"],["Tim","Bekerja sama"]],why:"Setiap pemain memiliki tugas."}
+ ],
+ [
+ {type:"quiz",q:"Strategi yang tepat bagi kelompok penyerang adalah ...",a:["Berkoordinasi mencari celah","Berjalan sendiri","Mengabaikan aturan","Mengganggu lawan"],correct:0,why:"Koordinasi membantu tim."},
+ {type:"true",q:"Sportivitas tetap penting saat bermain kompetitif.",a:["Benar","Salah"],correct:0,why:"Pemain harus menghargai lawan."},
+ {type:"quiz",q:"Nilai utama gobak sodor adalah ...",a:["Kerja sama dan ketangkasan","Kesendirian","Memasak","Menggambar"],correct:0,why:"Permainan menuntut kerja sama."}
+ ]]
+},
+{
+ id:"bekel",
+ name:"Bekel",
+ emoji:"🔴",
+ desc:"Permainan bola kecil dan biji bekel.",
+ levels:[
+ [
+ {type:"quiz",q:"Apa alat permainan bekel?",a:["Bola kecil dan biji bekel","Papan berlubang","Bambu panjang","Kelereng besar"],correct:0,why:"Bekel menggunakan bola dan biji bekel."},
+ {type:"true",q:"Bekel membutuhkan koordinasi tangan dan mata.",a:["Benar","Salah"],correct:0,why:"Pemain harus mengatur pantulan bola."},
+ {type:"word",q:"Susun huruf: B-E-K-E-L",answer:"BEKEL",why:"Jawabannya adalah Bekel."}
+ ],
+ [
+ {type:"image",q:"Tebak permainan berikut!",visual:"🔴 ✦ ✦ ✦",a:["Bekel","Egrang","Engklek","Gobak Sodor"],correct:0,why:"Bola dan biji bekel merupakan alat permainannya."},
+ {type:"quiz",q:"Apa yang dilakukan pemain ketika bola dilambungkan?",a:["Mengambil biji sesuai aturan","Menendang bola","Melempar papan","Berlari"],correct:0,why:"Pemain mengambil biji sebelum menangkap bola."},
+ {type:"match",q:"Cocokkan alat dan permainan.",pairs:[["Bola kecil + biji","Bekel"],["Papan berlubang","Congklak"],["Tongkat bambu","Egrang"]],why:"Alat permainan memiliki ciri khas."}
+ ],
+ [
+ {type:"quiz",q:"Keterampilan yang diperlukan saat bermain bekel adalah ...",a:["Koordinasi dan ketepatan","Mengayuh sepeda","Menggambar peta","Menyusun balok"],correct:0,why:"Pemain perlu tepat mengambil biji."},
+ {type:"true",q:"Urutan mengambil biji bekel mengikuti aturan permainan.",a:["Benar","Salah"],correct:0,why:"Permainan memiliki tahapan tertentu."},
+ {type:"quiz",q:"Mengapa pemain harus fokus saat bola dilambungkan?",a:["Waktu mengambil biji terbatas","Bola berubah warna","Biji bertambah sendiri","Permainan berhenti"],correct:0,why:"Pemain harus bergerak dengan tepat."}
+ ]]
+},
+{
+ id:"egrang",
+ name:"Egrang",
+ emoji:"🎋",
+ desc:"Berjalan menggunakan tongkat berpijakan.",
+ levels:[
+ [
+ {type:"quiz",q:"Bahan yang sering digunakan membuat egrang adalah ...",a:["Bambu","Kertas","Kaca","Kain"],correct:0,why:"Egrang tradisional sering dibuat dari bambu."},
+ {type:"true",q:"Egrang membutuhkan keseimbangan tubuh.",a:["Benar","Salah"],correct:0,why:"Pemain harus menjaga keseimbangan."},
+ {type:"word",q:"Susun huruf: E-G-R-A-N-G",answer:"EGRANG",why:"Jawabannya adalah Egrang."}
+ ],
+ [
+ {type:"image",q:"Permainan apa yang menggunakan tongkat berpijakan?",visual:"🎋 🧍",a:["Egrang","Bekel","Congklak","Engklek"],correct:0,why:"Egrang menggunakan tongkat berpijakan."},
+ {type:"quiz",q:"Bagian tempat berpijak kaki disebut ...",a:["Pijakan","Lubang biji","Garis batas","Pegangan bola"],correct:0,why:"Pijakan dipasang pada tongkat."},
+ {type:"match",q:"Cocokkan permainan dengan cirinya.",pairs:[["Egrang","Tongkat berpijakan"],["Bekel","Bola dan biji"],["Engklek","Petak lompatan"]],why:"Setiap permainan memiliki ciri khas."}
+ ],
+ [
+ {type:"quiz",q:"Tantangan utama saat menggunakan egrang adalah ...",a:["Menjaga keseimbangan","Menghitung biji","Menyusun huruf","Mengenali kartu"],correct:0,why:"Keseimbangan sangat dibutuhkan."},
+ {type:"true",q:"Egrang perlu dimainkan di tempat aman dengan pendampingan.",a:["Benar","Salah"],correct:0,why:"Permainan fisik harus memperhatikan keselamatan."},
+ {type:"quiz",q:"Nilai yang dikembangkan dari latihan egrang adalah ...",a:["Keberanian dan ketekunan","Sikap curang","Tidak peduli keselamatan","Mudah menyerah"],correct:0,why:"Latihan bertahap melatih ketekunan."}
+ ]]
+},
+{
+ id:"kelereng",
+ name:"Kelereng",
+ emoji:"🔵",
+ desc:"Permainan menggunakan bola kaca kecil.",
+ levels:[
+ [
+ {type:"quiz",q:"Kelereng umumnya berbentuk ...",a:["Bola kecil","Kubus besar","Papan datar","Tongkat panjang"],correct:0,why:"Kelereng berbentuk bola kecil."},
+ {type:"true",q:"Aturan permainan kelereng dapat berbeda di setiap tempat.",a:["Benar","Salah"],correct:0,why:"Ada berbagai variasi permainan kelereng."},
+ {type:"word",q:"Susun huruf: K-E-L-E-R-E-N-G",answer:"KELERENG",why:"Jawabannya adalah Kelereng."}
+ ],
+ [
+ {type:"image",q:"Benda apa yang menjadi alat utama permainan ini?",visual:"🔵 🔴 🟢",a:["Kelereng","Biji bekel","Bambu","Papan congklak"],correct:0,why:"Kelereng merupakan bola kecil."},
+ {type:"quiz",q:"Gerakan yang sering digunakan memainkan kelereng adalah ...",a:["Menyentil","Melompat","Berjalan di tongkat","Melambungkan bola"],correct:0,why:"Kelereng sering digerakkan dengan sentilan."},
+ {type:"match",q:"Pasangkan permainan dengan alatnya.",pairs:[["Kelereng","Bola kaca kecil"],["Engklek","Petak di tanah"],["Gobak Sodor","Garis penjagaan"]],why:"Alat menjadi ciri permainan."}
+ ],
+ [
+ {type:"quiz",q:"Sikap yang baik saat bermain kelereng adalah ...",a:["Jujur mengikuti aturan","Mengubah aturan","Mengambil milik teman","Tidak bergiliran"],correct:0,why:"Kejujuran dan sportivitas penting."},
+ {type:"true",q:"Kelereng kecil harus dijauhkan dari anak yang masih sangat kecil karena berisiko tertelan.",a:["Benar","Salah"],correct:0,why:"Benda kecil harus digunakan dengan memperhatikan keselamatan."},
+ {type:"quiz",q:"Manfaat bermain kelereng adalah ...",a:["Melatih fokus dan ketepatan","Mengurangi kerja sama","Mengabaikan aturan","Menghindari konsentrasi"],correct:0,why:"Permainan melatih fokus dan ketepatan."}
+ ]]
+}
+];
+
+let stars=Number(localStorage.jpnStars||0);
+let coins=Number(localStorage.jpnCoins||0);
+let unlocked=Number(localStorage.jpnUnlocked||1);
+let sound=true,current,level,index,score,answered;
+let matchLeft=null,matchCorrect=0;
+
+const $=id=>document.getElementById(id);
+
+function save(){
+ localStorage.jpnStars=stars;
+ localStorage.jpnCoins=coins;
+ localStorage.jpnUnlocked=unlocked;
+ renderStats();
+}
+
+function renderStats(){
+ $("stars").textContent=stars;
+ $("coins").textContent=coins;
+}
+
+function renderGames(){
+ $("games").innerHTML=data.map(g=>{
+  let done=Number(localStorage["jpn_"+g.id]||0);
+  return `
+  <article class="game">
+   <div class="emoji">${g.emoji}</div>
+   <h3>${g.name}</h3>
+   <p>${g.desc}</p>
+   <div class="progress"><i style="width:${done/3*100}%"></i></div>
+   <small>Level selesai: ${done}/3</small>
+   <button class="btn" onclick="startGame('${g.id}')">Mainkan →</button>
+  </article>`;
+ }).join("");
+}
+
+function startGame(id){
+ current=data.find(g=>g.id===id);
+ level=unlocked;
+ index=0;
+ score=0;
+ $("gameTitle").textContent=current.name;
+ $("modal").classList.add("show");
+ showChallenge();
+}
+
+function showChallenge(){
+ let item=current.levels[level-1][index];
+ answered=false;
+ matchLeft=null;
+ matchCorrect=0;
+
+ $("levelLabel").textContent="LEVEL "+level;
+ $("typeLabel").textContent=item.type.toUpperCase();
+ $("question").textContent=item.q;
+ $("feedback").className="feedback";
+ $("nextBtn").disabled=true;
+ $("nextBtn").textContent=index===2?"Selesaikan Level":"Lanjut →";
+ $("stepText").textContent=`Tantangan ${index+1} dari 3`;
+ $("stepbar").style.width=(index/3*100)+"%";
+
+ let c=$("challenge");
+ c.innerHTML="";
+
+ if(item.visual){
+  c.innerHTML+=`<div style="font-size:35px;text-align:center;white-space:pre-line;padding:15px">${item.visual}</div>`;
+ }
+
+ if(["quiz","true","image"].includes(item.type)){
+  c.innerHTML+=`<div class="answers">${
+   item.a.map((a,i)=>`
+    <button class="answer" onclick="choose(${i})">
+     ${String.fromCharCode(65+i)}. ${a}
+    </button>`).join("")
+  }</div>`;
+ }
+
+ if(item.type==="word"){
+  c.innerHTML=`
+   <input class="input" id="wordInput" placeholder="Ketik jawaban...">
+   <button class="btn" style="margin-top:10px" onclick="checkWord()">Periksa</button>`;
+ }
+
+ if(item.type==="match"){
+  c.innerHTML=`<div id="matchArea"></div>`;
+  renderMatch(item);
+ }
+}
+
+function choose(i){
+ if(answered)return;
+ let item=current.levels[level-1][index];
+ answered=true;
+
+ let ok=i===item.correct;
+
+ document.querySelectorAll(".answer").forEach((b,n)=>{
+  b.disabled=true;
+  if(n===item.correct)b.classList.add("correct");
+  else if(n===i)b.classList.add("wrong");
+ });
+
+ finishAnswer(ok,item.why);
+}
+
+function checkWord(){
+ if(answered)return;
+ let item=current.levels[level-1][index];
+ let value=$("wordInput").value.replace(/\s/g,"").toUpperCase();
+ if(!value)return;
+
+ answered=true;
+ finishAnswer(value===item.answer,item.why);
+}
+
+function renderMatch(item){
+ let order=item.pairs.map((p,i)=>({v:p[1],i})).sort((a,b)=>a.v.localeCompare(b.v));
+
+ $("matchArea").innerHTML=`
+ <div class="matchrow">
+  <div>${item.pairs.map((p,i)=>`
+   <button id="ml${i}" onclick="pickMatch('l',${i})">${p[0]}</button>
+  `).join("")}</div>
+  <div>${order.map(p=>`
+   <button id="mr${p.i}" onclick="pickMatch('r',${p.i})">${p.v}</button>
+  `).join("")}</div>
+ </div>
+ <small id="matchHint">Pilih nama di kiri, lalu pasangannya di kanan.</small>`;
+}
+
+function pickMatch(side,i){
+ if(answered)return;
+
+ if(side==="l"){
+  matchLeft=i;
+  document.querySelectorAll("[id^=ml]").forEach(b=>b.classList.remove("selected"));
+  $("ml"+i).classList.add("selected");
+  return;
+ }
+
+ if(matchLeft===null)return;
+
+ if(matchLeft===i){
+  $("ml"+i).disabled=true;
+  $("mr"+i).disabled=true;
+  $("ml"+i).classList.add("correct");
+  $("mr"+i).classList.add("correct");
+  matchCorrect++;
+  $("matchHint").textContent="Pasangan cocok!";
+ }else{
+  $("matchHint").textContent="Belum cocok. Coba lagi.";
+ }
+
+ matchLeft=null;
+ document.querySelectorAll("[id^=ml]").forEach(b=>b.classList.remove("selected"));
+
+ if(matchCorrect===current.levels[level-1][index].pairs.length){
+  answered=true;
+  finishAnswer(true,current.levels[level-1][index].why);
+ }
+}
+
+function finishAnswer(ok,why){
+ $("feedback").className="feedback show";
+ $("feedback").textContent=(ok?"✓ Jawaban benar! ":"Belum tepat. ")+why;
+
+ if(ok){
+  score+=10;
+  coins+=5;
+  save();
+  beep(660);
+ }else{
+  beep(180);
+ }
+
+ $("nextBtn").disabled=false;
+}
+
+function nextChallenge(){
+ if(!answered)return;
+
+ index++;
+
+ if(index<3){
+  showChallenge();
+  return;
+ }
+
+ let completed=Number(localStorage["jpn_"+current.id]||0);
+
+ if(level>completed){
+  localStorage["jpn_"+current.id]=level;
+ }
+
+ stars+=1;
+ coins+=20;
+
+ if(level===unlocked && unlocked<3){
+  unlocked++;
+ }
+
+ save();
+ renderGames();
+
+ $("stepbar").style.width="100%";
+ $("typeLabel").textContent="LEVEL SELESAI";
+ $("question").textContent="Hebat! Kamu berhasil menyelesaikan level "+level+"!";
+ $("challenge").innerHTML=`
+  <div style="text-align:center;font-size:55px">🏆</div>
+  <p style="text-align:center">Kamu mendapatkan:</p>
+  <h3 style="text-align:center">⭐ 1 Bintang · 🪙 20 Koin</h3>
+  <p style="text-align:center">Poin tantangan: ${score}</p>
+  <p style="text-align:center">Terus jelajahi permainan tradisional Nusantara!</p>`;
+
+ $("feedback").className="feedback";
+ $("nextBtn").textContent="Kembali ke Daftar";
+ $("nextBtn").disabled=false;
+ $("nextBtn").onclick=()=>{
+  closeGame();
+  $("nextBtn").onclick=nextChallenge;
+ };
+}
+
+function closeGame(){
+ $("modal").classList.remove("show");
+ renderGames();
+}
+
+function beep(freq){
+ if(!sound)return;
+
+ try{
+  let ctx=new(window.AudioContext||window.webkitAudioContext)();
+  let o=ctx.createOscillator();
+  let g=ctx.createGain();
+
+  o.frequency.value=freq;
+  o.connect(g);
+  g.connect(ctx.destination);
+  g.gain.setValueAtTime(.06,ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.18);
+  o.start();
+  o.stop(ctx.currentTime+.18);
+ }catch(e){}
+}
+
+$("soundBtn").onclick=()=>{
+ sound=!sound;
+ $("soundBtn").textContent=sound?"🔊 Suara ON":"🔇 Suara OFF";
+ if(sound)beep(520);
+};
+
+renderStats();
+renderGames();
+</script>
+</body>
+</html>
